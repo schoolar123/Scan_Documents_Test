@@ -20,9 +20,9 @@ EDGE_KERNEL_SIZE = 3
 PERI_PERCENTAGE = 0.001
 TRANSFORM_KERNEL_SIZE = 13
 THRESHOLD_KERNEL_SIZE = TRANSFORM_KERNEL_SIZE - 4
-THRESHOLD_BIAS = 2
+THRESHOLD_BIAS = 4
 CANNY_T1 = 25
-CANNY_T2 = 320
+CANNY_T2 = 40
 
 
 def find_edges(image_name):
@@ -97,6 +97,18 @@ def arc_length(contour):
     '''
     return cv.arcLength(contour, True)
 
+def contour_area(contour):
+    arc = cv.arcLength(contour, True)
+    contour = list(contour.reshape(-1, 2))
+    min_x = min(contour, key=lambda x: x[0])[0]
+    max_x = max(contour, key=lambda x: x[0])[0]
+    diff_x = max_x - min_x
+
+    min_y = min(contour, key=lambda x: x[1])[1]
+    max_y = max(contour, key=lambda x: x[1])[1]
+    diff_y = max_y - min_y
+
+    return diff_y * diff_x + 100*diff_y
 
 def find_contour(edged, image):
     '''
@@ -111,7 +123,7 @@ def find_contour(edged, image):
     cnts = imutils.grab_contours(cnts)
 
     # Sorting the closed contours by their lengths (maybe taking the max is enough).
-    cnts = sorted(cnts, key=arc_length, reverse=True)
+    cnts = sorted(cnts, key=contour_area, reverse=True)
 
     # Calculating the closed contour length (which is the perimeter of the object).
     peri = cv.arcLength(cnts[0], True)
@@ -142,7 +154,7 @@ def find_contour(edged, image):
     return box
 
 
-def perspective_transform(org_image, screen_contour, ratio):
+def perspective_transform(org_image, screen_contour=None, ratio=None):
     '''
     This function is taking the object out of the image, rotating it and turning it to a clear white with black lines.
     :param org_image: the original image
@@ -152,13 +164,17 @@ def perspective_transform(org_image, screen_contour, ratio):
     '''
     # Transforming the object from the image (which is rotating the object to be straight and discarding
     # the rest of the image).
-    warped = four_point_transform(org_image, screen_contour.reshape(4, 2) * ratio)
+    # warped = four_point_transform(org_image, screen_contour.reshape(4, 2) * ratio)
 
     # Changing the image to a BLACK & WHITE image
-    warped = cv.cvtColor(warped, cv.COLOR_BGR2GRAY)
+    warped = cv.cvtColor(org_image, cv.COLOR_BGR2GRAY)
+    # cv.imshow("warped1", warped)
+    # cv.waitKey(0)
 
     # Blurring the image to eliminate noises in the image (maybe not needed).
-    warped = cv.GaussianBlur(warped, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
+    # warped = cv.GaussianBlur(warped, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
+    # cv.imshow("warped2", warped)
+    # cv.waitKey(0)
 
     # Thresholding the object using an adaptive gaussian threshold in order to eliminate noise and bold the data,
     # changing the image to white with black lines.
@@ -173,12 +189,20 @@ def perspective_transform(org_image, screen_contour, ratio):
 
 
 if __name__ == '__main__':
-    IMG_NAME = "receipt"
+    import pytesseract
+
+    IMG_NAME = "marriage"
     edged_image, resized_image, org_image, ratio = find_edges(IMG_NAME)
     screen_contour = find_contour(edged_image, resized_image)
     scanned_image = perspective_transform(org_image, screen_contour, ratio)
-    cv.imwrite(f"output_images\\{IMG_NAME}_scanned.jpg", scanned_image)
-    cv.imshow("Original", imutils.resize(org_image, height=650))
+    # cv.imwrite(f"output_images\\{IMG_NAME}_scanned.jpg", scanned_image)
+    # cv.imshow("Original", imutils.resize(org_image, height=650))
+    # cv.imshow("warped4", scanned_image)
+    # cv.waitKey(0)
     cv.imshow("Scanned", imutils.resize(scanned_image, height=650))
     cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.destroyAllWindows()
+    text1 = pytesseract.image_to_string(scanned_image, lang='heb')
+    text2 = pytesseract.image_to_string(resized_image, lang='heb')
+    print(text1)
+    # print(text2)
