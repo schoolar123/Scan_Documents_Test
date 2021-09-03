@@ -97,33 +97,35 @@ def arc_length(contour):
     '''
     return cv.arcLength(contour, True)
 
-def contour_area(contour):
+
+def contour_arc(contour):
     arc = cv.arcLength(contour, True)
-    contour = list(contour.reshape(-1, 2))
-    min_x = min(contour, key=lambda x: x[0])[0]
-    max_x = max(contour, key=lambda x: x[0])[0]
-    diff_x = max_x - min_x
+    # contour = list(contour.reshape(-1, 2))
+    # min_x = min(contour, key=lambda x: x[0])[0]
+    # max_x = max(contour, key=lambda x: x[0])[0]
+    # diff_x = max_x - min_x
+    #
+    # min_y = min(contour, key=lambda x: x[1])[1]
+    # max_y = max(contour, key=lambda x: x[1])[1]
+    # diff_y = max_y - min_y
+    #
+    # return diff_y * diff_x + 100*diff_y
+    return arc
 
-    min_y = min(contour, key=lambda x: x[1])[1]
-    max_y = max(contour, key=lambda x: x[1])[1]
-    diff_y = max_y - min_y
-
-    return diff_y * diff_x + 100*diff_y
 
 def find_contour(edged, image):
-    '''
-
+    """
     :param edged: The edged image
     :param image:
     :return:
-    '''
+    """
 
     # Finding all the contours in the edged image.
     cnts = cv.findContours(edged, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
     # Sorting the closed contours by their lengths (maybe taking the max is enough).
-    cnts = sorted(cnts, key=contour_area, reverse=True)
+    cnts = sorted(cnts, key=contour_arc, reverse=True)
 
     # Calculating the closed contour length (which is the perimeter of the object).
     peri = cv.arcLength(cnts[0], True)
@@ -154,38 +156,47 @@ def find_contour(edged, image):
     return box
 
 
-def perspective_transform(org_image, screen_contour=None, ratio=None):
-    '''
-    This function is taking the object out of the image, rotating it and turning it to a clear white with black lines.
+def perspective_transform(org_image, screen_contour, ratio):
+    """
+    This function is taking the object out of the image and rotating it.
     :param org_image: the original image
     :param screen_contour: the contour of the object in the image
     :param ratio: the ratio between the original and the processed image
     :return: the final scanned image
-    '''
+    """
     # Transforming the object from the image (which is rotating the object to be straight and discarding
     # the rest of the image).
-    # warped = four_point_transform(org_image, screen_contour.reshape(4, 2) * ratio)
+    warped = four_point_transform(org_image, screen_contour.reshape(4, 2) * ratio)
+    return warped
 
+
+def thresholding(image):
+    """
+    This function turns the image to a clear white with black lines.
+    :param image:
+    :return:
+    """
     # Changing the image to a BLACK & WHITE image
-    warped = cv.cvtColor(org_image, cv.COLOR_BGR2GRAY)
+    gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     # cv.imshow("warped1", warped)
     # cv.waitKey(0)
 
     # Blurring the image to eliminate noises in the image (maybe not needed).
-    # warped = cv.GaussianBlur(warped, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
-    # cv.imshow("warped2", warped)
+    # threshold_image = cv.GaussianBlur(gray_image, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
+    # cv.imshow("warped2", threshold_image)
     # cv.waitKey(0)
 
     # Thresholding the object using an adaptive gaussian threshold in order to eliminate noise and bold the data,
     # changing the image to white with black lines.
-    warped = cv.adaptiveThreshold(warped, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, THRESHOLD_KERNEL_SIZE,
-                                  THRESHOLD_BIAS)
+    threshold_image = cv.adaptiveThreshold(gray_image, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
 
-    # T = threshold_local(warped, 11, offset=10, method="gaussian")
-    # warped = (warped > T).astype(np.uint8) * 255
+    # T = threshold_local(gray_image, 11, offset=10, method="gaussian")
+    # threshold_image = (gray_image > T).astype(np.uint8) * 255
 
-    # ret3, warped = cv.threshold(warped, BLACK, WHITE, cv.THRESH_BINARY + cv.THRESH_OTSU)
-    return warped
+    # ret3, threshold_image = cv.threshold(threshold_image, BLACK, WHITE, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    return threshold_image
 
 
 if __name__ == '__main__':
