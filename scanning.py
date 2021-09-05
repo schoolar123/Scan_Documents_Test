@@ -22,17 +22,20 @@ TRANSFORM_KERNEL_SIZE = 13
 THRESHOLD_KERNEL_SIZE = TRANSFORM_KERNEL_SIZE - 4
 THRESHOLD_BIAS = 4
 CANNY_T1 = 25
-CANNY_T2 = 40
+CANNY_T2 = 220
 
 
 def find_edges(image_name):
-    '''
+    """
     This function is for finding the edges in the image
     :param image_name:
     :return:
-    '''
-    image = cv.imread(f"input_images\\{image_name}.jpg")
-    ratio = image.shape[0] / 500.0
+    """
+    image = cv.imread(f"input_images\\{image_name}")
+    try:
+        ratio = image.shape[0] / 500.0
+    except:
+        t = 1
     orig = image.copy()
     image = imutils.resize(image, height=500)
 
@@ -58,12 +61,12 @@ def find_edges(image_name):
     # apertureSize is the sobel kernel size (which is for smoothing the image in one direction and deriving the image
     # on the perpendicular direction.
     edged = cv.Canny(gray_image, CANNY_T1, CANNY_T2, L2gradient=True, apertureSize=3)
-    cv.imwrite(f"output_images\\{IMG_NAME}_edged.jpg", edged)
-    cv.imshow("Image", image)
-    cv.imshow("Gray Image", gray_image)
-    cv.imshow("Edged", edged)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    cv.imwrite(f"output_images\\edged_{image_name}", edged)
+    # cv.imshow("Image", image)
+    # cv.imshow("Gray Image", gray_image)
+    # cv.imshow("Edged", edged)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
     return edged.copy(), image.copy(), orig, ratio
 
 
@@ -83,10 +86,10 @@ def old_find_contour(edged, image):
             screenCnt = approx
             break
 
-    cv.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
-    cv.imshow("Outline", image)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
+    # cv.imshow("Outline", image)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 
 def arc_length(contour):
@@ -113,7 +116,7 @@ def contour_arc(contour):
     return arc
 
 
-def find_contour(edged, image):
+def find_contour(edged, image, image_name):
     """
     :param edged: The edged image
     :param image:
@@ -147,11 +150,11 @@ def find_contour(edged, image):
         [[-BOX_OFFSET, -BOX_OFFSET], [BOX_OFFSET, -BOX_OFFSET], [BOX_OFFSET, BOX_OFFSET], [-BOX_OFFSET, BOX_OFFSET]])
 
     # Drawing the rotated rectangle
-    cv.drawContours(image, [box], -1, RED, MEDIUM_LINE_LENGTH)
-    cv.imwrite(f"output_images\\{IMG_NAME}_boxed.jpg", image)
-    cv.imshow("Boxed", image)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.drawContours(image, [box], -1, RED, MEDIUM_LINE_LENGTH)
+    # cv.imwrite(f"output_images\\{image_name}_boxed.jpg", image)
+    # cv.imshow("Boxed", image)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
     return box
 
@@ -199,21 +202,10 @@ def thresholding(image):
     return threshold_image
 
 
-if __name__ == '__main__':
-    import pytesseract
-
-    IMG_NAME = "marriage"
-    edged_image, resized_image, org_image, ratio = find_edges(IMG_NAME)
-    screen_contour = find_contour(edged_image, resized_image)
-    scanned_image = perspective_transform(org_image, screen_contour, ratio)
-    # cv.imwrite(f"output_images\\{IMG_NAME}_scanned.jpg", scanned_image)
-    # cv.imshow("Original", imutils.resize(org_image, height=650))
-    # cv.imshow("warped4", scanned_image)
-    # cv.waitKey(0)
-    cv.imshow("Scanned", imutils.resize(scanned_image, height=650))
-    cv.waitKey(0)
-    # cv.destroyAllWindows()
-    text1 = pytesseract.image_to_string(scanned_image, lang='heb')
-    text2 = pytesseract.image_to_string(resized_image, lang='heb')
-    print(text1)
-    # print(text2)
+def preprocess_image(image_name):
+    edged_image, resized_image, org_image, ratio = find_edges(image_name)
+    screen_contour = find_contour(edged_image, resized_image, image_name)
+    warped = perspective_transform(org_image, screen_contour, ratio)
+    scanned_image = thresholding(warped)
+    cv.imwrite(f"output_images\\{image_name[:-4]}_scanned{image_name[-4:]}", scanned_image)
+    return scanned_image

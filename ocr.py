@@ -1,9 +1,11 @@
 import pytesseract
 import cv2 as cv
+import re
+import os
 
 from multilingual_pdf2text.pdf2text import PDF2Text
 from multilingual_pdf2text.models.document_model.document import Document
-from scanning import thresholding
+from scanning import preprocess_image, thresholding
 
 
 def pdf_ocr(file_name):
@@ -32,6 +34,25 @@ def image_ocr(file_name):
     return text
 
 
+def text_outputs(image_name):
+    scanned_image = preprocess_image(image_name)
+
+    # Extracting the text after selecting the object
+    text1 = pytesseract.image_to_string(scanned_image, lang='heb')
+
+    # Extracting the text only after thresholding
+    text2 = image_ocr(f"input_images/{image_name}")
+
+    with open(f"output_texts/{image_name[:-4]}_output1.txt", "w") as out1:
+        h = re.sub(r"\n+ *", "\n", text1)
+        h2 = re.sub(r"\n+", "\n", h)
+        out1.write(h2)
+    with open(f"output_texts/{image_name[:-4]}_output2.txt", "w") as out2:
+        c = re.sub(r"\n+ *", "\n", text2)
+        c2 = re.sub(r"\n+", "\n", c)
+        out2.write(c2)
+
+
 if __name__ == '__main__':
-    FILE_NAME = "input_images/receipt.jpg"
-    print(image_ocr(FILE_NAME))
+    for image_name in os.listdir("input_images"):
+        text_outputs(image_name)
