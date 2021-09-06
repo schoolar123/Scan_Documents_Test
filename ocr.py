@@ -2,7 +2,7 @@ import pytesseract
 import cv2 as cv
 import re
 import os
-
+#test-maor-k-060921
 from multilingual_pdf2text.pdf2text import PDF2Text
 from multilingual_pdf2text.models.document_model.document import Document
 from scanning import preprocess_image, thresholding
