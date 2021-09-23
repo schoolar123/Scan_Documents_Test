@@ -1,9 +1,12 @@
+import re
+
 import numpy as np
 import cv2 as cv
 import imutils
+import skimage.transform
 
 from perspective import four_point_transform
-
+import pytesseract
 from skimage.filters import threshold_local
 
 BOX_OFFSET = 0
@@ -102,18 +105,17 @@ def arc_length(contour):
 
 
 def contour_arc(contour):
-    arc = cv.arcLength(contour, True)
-    # contour = list(contour.reshape(-1, 2))
-    # min_x = min(contour, key=lambda x: x[0])[0]
-    # max_x = max(contour, key=lambda x: x[0])[0]
-    # diff_x = max_x - min_x
-    #
-    # min_y = min(contour, key=lambda x: x[1])[1]
-    # max_y = max(contour, key=lambda x: x[1])[1]
-    # diff_y = max_y - min_y
-    #
-    # return diff_y * diff_x + 100*diff_y
-    return arc
+    contour = list(contour.reshape(-1, 2))
+    min_x = min(contour, key=lambda x: x[0])[0]
+    max_x = max(contour, key=lambda x: x[0])[0]
+    diff_x = max_x - min_x
+
+    min_y = min(contour, key=lambda x: x[1])[1]
+    max_y = max(contour, key=lambda x: x[1])[1]
+    diff_y = max_y - min_y
+
+    return diff_y * diff_x + 100*diff_y
+
 
 
 def find_contour(edged, image, image_name):
@@ -185,8 +187,8 @@ def thresholding(image):
     # cv.waitKey(0)
 
     # Blurring the image to eliminate noises in the image (maybe not needed).
-    # threshold_image = cv.GaussianBlur(gray_image, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
-    # cv.imshow("warped2", threshold_image)
+    # blurred = cv.GaussianBlur(gray_image, (TRANSFORM_KERNEL_SIZE, TRANSFORM_KERNEL_SIZE), 0)
+    # cv.imshow("warped2", blurred)
     # cv.waitKey(0)
 
     # Thresholding the object using an adaptive gaussian threshold in order to eliminate noise and bold the data,
@@ -207,5 +209,259 @@ def preprocess_image(image_name):
     screen_contour = find_contour(edged_image, resized_image, image_name)
     warped = perspective_transform(org_image, screen_contour, ratio)
     scanned_image = thresholding(warped)
-    cv.imwrite(f"output_images\\{image_name[:-4]}_scanned{image_name[-4:]}", scanned_image)
+    # cv.imwrite(f"output_images\\{image_name[:-4]}_scanned{image_name[-4:]}", scanned_image)
     return scanned_image
+
+
+def dilation(img):
+    kernel_size = 3
+    kernel2 = np.ones((kernel_size, kernel_size), np.uint8)
+    kernel2[0, 0] = 0
+    kernel2[0, 2] = 0
+    kernel2[2, 0] = 0
+    kernel2[2, 2] = 0
+
+    dilated = cv.dilate(img, kernel2)
+
+
+    # test_txts(image, clean_image, dilated, original_dilated)
+    # cv.imshow("original image", img)
+    #
+    # cv.imshow("dilated", dilated)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
+    return dilated
+
+
+
+def erosion(img):
+    kernel_size = 3
+    kernel2 = np.ones((kernel_size, kernel_size), np.uint8)
+    kernel2[0, 0] = 0
+    kernel2[0, 2] = 0
+    kernel2[2, 0] = 0
+    kernel2[2, 2] = 0
+
+    # rescale_factor = 1.5
+    # img = np.uint8(
+    #     skimage.transform.rescale(img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+
+    eroded = cv.erode(img, kernel2)
+
+
+    # cv.imshow("original image", img)
+    #
+    # cv.imshow("eroded", eroded)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
+    return eroded
+
+
+def f1(img):
+    new_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    return new_img
+
+def f2(img):
+    new_img = f1(img)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+def f3(img):
+    kernel_size = 3
+    new_img = f1(img)
+    new_img = cv.GaussianBlur(new_img, (kernel_size, kernel_size), 0)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+def f4(img):
+    rescale_factor = 0.75
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    return new_img
+
+
+
+def f5(img):
+    rescale_factor = 1.5
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    return new_img
+
+def f6(img):
+    rescale_factor = 2.0
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    return new_img
+
+def f7(img):
+    rescale_factor = 2.5
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    return new_img
+
+
+def f8(img):
+    rescale_factor = 0.75
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+def f9(img):
+    rescale_factor = 1.5
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+def f10(img):
+    rescale_factor = 2.0
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+def f11(img):
+    rescale_factor = 2.5
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+def f12(img):
+    rescale_factor = 0.75
+    kernel_size = 3
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.GaussianBlur(new_img, (kernel_size, kernel_size), 0)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+def f13(img):
+    rescale_factor = 1.5
+    kernel_size = 3
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.GaussianBlur(new_img, (kernel_size, kernel_size), 0)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+def f14(img):
+    rescale_factor = 2.0
+    kernel_size = 3
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.GaussianBlur(new_img, (kernel_size, kernel_size), 0)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+
+def f15(img):
+    rescale_factor = 2.5
+    kernel_size = 3
+    new_img = f1(img)
+    new_img = np.uint8(
+        skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False, preserve_range=True))
+    new_img = cv.GaussianBlur(new_img, (kernel_size, kernel_size), 0)
+    new_img = cv.adaptiveThreshold(new_img, WHITE, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY,
+                                           THRESHOLD_KERNEL_SIZE,
+                                           THRESHOLD_BIAS)
+    return new_img
+
+
+def f16(img):
+    new_img = f2(img)
+    new_img = dilation(new_img)
+    return new_img
+
+def f17(img):
+    new_img = f8(img)
+    new_img = dilation(new_img)
+    return new_img
+
+def f18(img):
+    new_img = f9(img)
+    new_img = dilation(new_img)
+    return new_img
+
+def f19(img):
+    new_img = f10(img)
+    new_img = dilation(new_img)
+    return new_img
+
+def f20(img):
+    new_img = f11(img)
+    new_img = dilation(new_img)
+    return new_img
+
+def f21(img):
+    new_img = f2(img)
+    new_img = erosion(new_img)
+    return new_img
+
+def f22(img):
+    new_img = f8(img)
+    new_img = erosion(new_img)
+    return new_img
+
+def f23(img):
+    new_img = f9(img)
+    new_img = erosion(new_img)
+    return new_img
+
+def f24(img):
+    new_img = f10(img)
+    new_img = erosion(new_img)
+    return new_img
+
+def f25(img):
+    new_img = f11(img)
+    new_img = erosion(new_img)
+    return new_img
+
+
+if __name__ == '__main__':
+    funcs = (f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25)
+    image = cv.imread("input_images/student_card_1.jpg")
+    for i, f in enumerate(funcs):
+
+        text = pytesseract.image_to_string(f(image), lang='heb')
+
+        t1 = re.sub(r"\s\s+", "\n", text).strip()
+        print("function:", i)
+        print(t1)
+        print("***************88")

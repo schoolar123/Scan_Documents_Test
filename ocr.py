@@ -10,6 +10,51 @@ from multilingual_pdf2text.models.document_model.document import Document
 from scanning import preprocess_image, thresholding
 
 
+def teudat_words():
+    return ("תקודת","תעורת","תענדת", "העודת", "תפודת", "תעורה","תקורת")
+
+def gerushin_words():
+    return ("נרושיך", "נרוטין", "גרושיך", "נרושין", "גרוטין", "גדושין")
+
+def hamosad_words():
+    return ("המזסד")
+
+def lebituah_words():
+    return ("לביטות")
+
+def medinat_words():
+    return ("מדיגת","מדונת", "מרינת")
+
+def nisuin_words():
+    return ("גישואין","נשואין","נשואיץ", "נשואיך", "נסואיך", "בשואין")
+
+def oved_words():
+    return ("עובר")
+
+
+def tlush_words():
+    return ("חלוש", "תלוס")
+
+def sachar_words():
+    return ("טכר")
+
+def nikuim_words():
+    return ("נוכויים", "ניבויים", "גיכויים")
+
+
+def ptirat_words():
+    return ("פטירת")
+
+def israel_words():
+    return ("יטראל")
+
+
+def cartis_words():
+    return ("כרטים", "ברטים", "ברטיס")
+
+def student_words():
+    return ("סטורנט")
+
 def pdf_ocr(file_name):
     """
     This function turns a pdf file to text. For this to work you need Tesseract and Poppler on your PC and on the
@@ -122,6 +167,8 @@ def dilation_test(file_name):
     cv.imshow("dilated original", original_dilated)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+
 
 
 def test_txts(*images):
