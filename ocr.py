@@ -1,59 +1,70 @@
-import numpy as np
-import pytesseract
-import cv2 as cv
-import re
-import os
-
+# _*_ coding: utf-8 _*_
 import skimage.transform
-from multilingual_pdf2text.pdf2text import PDF2Text
-from multilingual_pdf2text.models.document_model.document import Document
-from scanning import preprocess_image, thresholding
+from pdf2image import convert_from_path
+from scanning import *
 
 
 def teudat_words():
-    return ("ϊχεγϊ","ϊςεψϊ","ϊςπγϊ", "δςεγϊ", "ϊτεγϊ", "ϊςεψδ","ϊχεψϊ")
+    return ["ΧªΧ§Χ•Χ“Χª", "ΧªΧΆΧ•Χ¨Χª", "ΧªΧΆΧ Χ“Χª", "Χ”ΧΆΧ•Χ“Χª", "ΧªΧ¤Χ•Χ“Χª", "ΧªΧΆΧ•Χ¨Χ”", "ΧªΧ§Χ•Χ¨Χª"]
+
 
 def gerushin_words():
-    return ("πψεωικ", "πψεθιο", "βψεωικ", "πψεωιο", "βψεθιο", "βγεωιο")
+    return ["Χ Χ¨Χ•Χ©Χ™Χ", "Χ Χ¨Χ•ΧΧ™Χ", "Χ’Χ¨Χ•Χ©Χ™Χ", "Χ Χ¨Χ•Χ©Χ™Χ", "Χ’Χ¨Χ•ΧΧ™Χ", "Χ’Χ“Χ•Χ©Χ™Χ"]
+
 
 def hamosad_words():
-    return ("δξζργ")
+    return ["Χ”ΧΧ–Χ΅Χ“"]
+
 
 def lebituah_words():
-    return ("μαιθεϊ")
+    return ["ΧΧ‘Χ™ΧΧ•Χª"]
+
 
 def medinat_words():
-    return ("ξγιβϊ","ξγεπϊ", "ξψιπϊ")
+    return ["ΧΧ“Χ™Χ’Χª", "ΧΧ“Χ•Χ Χª", "ΧΧ¨Χ™Χ Χª"]
+
 
 def nisuin_words():
-    return ("βιωεΰιο","πωεΰιο","πωεΰιυ", "πωεΰικ", "πρεΰικ", "αωεΰιο")
+    return ["Χ’Χ™Χ©Χ•ΧΧ™Χ", "Χ Χ©Χ•ΧΧ™Χ", "Χ Χ©Χ•ΧΧ™Χ¥", "Χ Χ©Χ•ΧΧ™Χ", "Χ Χ΅Χ•ΧΧ™Χ", "Χ‘Χ©Χ•ΧΧ™Χ"]
+
 
 def oved_words():
-    return ("ςεαψ")
+    return ["ΧΆΧ•Χ‘Χ¨"]
 
 
 def tlush_words():
-    return ("ημεω", "ϊμερ")
+    return ("Χ—ΧΧ•Χ©", "ΧªΧΧ•Χ΅")
+
 
 def sachar_words():
-    return ("θλψ")
+    return ("ΧΧ›Χ¨")
+
 
 def nikuim_words():
-    return ("πελειιν", "πιαειιν", "βιλειιν")
+    return ["Χ Χ•Χ›Χ•Χ™Χ™Χ", "Χ Χ™Χ‘Χ•Χ™Χ™Χ", "Χ’Χ™Χ›Χ•Χ™Χ™Χ"]
 
 
-def ptirat_words():
-    return ("τθιψϊ")
+def ptira_words():
+    return ["Χ¤ΧΧ™Χ¨Χª"]
+
 
 def israel_words():
-    return ("ιθψΰμ")
+    return ["Χ™ΧΧ¨ΧΧ"]
 
 
 def cartis_words():
-    return ("λψθιν", "αψθιν", "αψθιρ")
+    return "Χ›Χ¨ΧΧ™Χ", "Χ‘Χ¨ΧΧ™Χ", "Χ‘Χ¨ΧΧ™Χ΅"
+
 
 def student_words():
-    return ("ρθεψπθ")
+    return ["Χ΅ΧΧ•Χ¨Χ Χ"]
+
+
+def ocr(file_name):
+    if file_name.endswith("pdf"):
+        return pdf_ocr(file_name)
+    return image_ocr(file_name)
+
 
 def pdf_ocr(file_name):
     """
@@ -62,10 +73,11 @@ def pdf_ocr(file_name):
     :param file_name:
     :return: a list of pages of that pdf, each element is a dictionary where 'text' is key for the text
     """
-    pdf_doc = Document(document_path=file_name, language='heb')
-    pdf_text = PDF2Text(document=pdf_doc)
-    content = pdf_text.extract()
-    return content
+    content = convert_from_path(file_name)
+    outputs = []
+    for page in content:
+        outputs.extend(image_extracter(np.array(page)))
+    return outputs
 
 
 def image_ocr(file_name):
@@ -75,10 +87,17 @@ def image_ocr(file_name):
     :param file_name:
     :return:
     """
-    image = cv.imread(file_name)
-    clean_image = thresholding(image)
-    text = pytesseract.image_to_string(clean_image, lang='heb')
-    return text
+    img = cv.imread(file_name)
+    return image_extracter(img)
+
+
+def image_extracter(img):
+    outputs = []
+    for func in FUNCS:
+        txt = pytesseract.image_to_string(func(img), lang='heb')
+        cleaned_txt = re.sub(r"\s\s+", "\n", txt).strip()
+        outputs.append(cleaned_txt)
+    return [outputs]
 
 
 def text_outputs(image_name):
@@ -147,7 +166,8 @@ def dilation_test(file_name):
     rescale_factor = 1.5
     image = cv.imread(f"input_images/{file_name}")
     # Enlarging the image by factor of 1.5
-    image = np.uint8(skimage.transform.rescale(image, (rescale_factor, rescale_factor), multichannel=True, preserve_range=True))
+    image = np.uint8(
+        skimage.transform.rescale(image, (rescale_factor, rescale_factor), multichannel=True, preserve_range=True))
     kernel_size = 3
     clean_image = thresholding(image)
     kernel2 = np.ones((kernel_size, kernel_size), np.uint8)
@@ -169,8 +189,6 @@ def dilation_test(file_name):
     cv.destroyAllWindows()
 
 
-
-
 def test_txts(*images):
     """
     This function extracts the text from any amount of images and writes it into text files.
@@ -181,9 +199,3 @@ def test_txts(*images):
         text = pytesseract.image_to_string(image, lang='heb')
         with open(f"test_file{i + 1}.txt", "w") as f:
             f.write(text)
-
-
-if __name__ == '__main__':
-    # for image_name in os.listdir("input_images"):
-    #     text_outputs(image_name)
-    dilation_test("divorce_1.jpg")
