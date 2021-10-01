@@ -1,4 +1,5 @@
 # _*_ coding: utf-8 _*_
+import numpy as np
 import skimage.transform
 from pdf2image import convert_from_path
 from scanning import *
@@ -74,10 +75,8 @@ def pdf_ocr(file_name):
     :return: a list of pages of that pdf, each element is a dictionary where 'text' is key for the text
     """
     content = convert_from_path(file_name)
-    outputs = []
     for page in content:
-        outputs.extend(image_extracter(np.array(page)))
-    return outputs
+        yield image_extracter(np.array(page))
 
 
 def image_ocr(file_name):
@@ -88,16 +87,15 @@ def image_ocr(file_name):
     :return:
     """
     img = cv.imread(file_name)
-    return image_extracter(img)
+    yield image_extracter(img)
 
 
 def image_extracter(img):
-    outputs = []
     for func in FUNCS:
         txt = pytesseract.image_to_string(func(img), lang='heb')
         cleaned_txt = re.sub(r"\s\s+", "\n", txt).strip()
-        outputs.append(cleaned_txt)
-    return [outputs]
+        yield cleaned_txt
+
 
 
 def text_outputs(image_name):
