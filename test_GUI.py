@@ -216,4 +216,8 @@ class GUI:
 
 
 if __name__ == '__main__':
-    gui = GUI()
+    # gui = GUI()
+    t = ocr("input_images\id.jpg")
+    for k in t:
+        for d in k:
+            print(d)

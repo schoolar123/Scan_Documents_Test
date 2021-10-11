@@ -35,10 +35,7 @@ def find_edges(image_name):
     :return:
     """
     image = cv.imread(f"input_images\\{image_name}")
-    try:
-        ratio = image.shape[0] / 500.0
-    except:
-        t = 1
+    ratio = image.shape[0] / 500.0
     orig = image.copy()
     image = imutils.resize(image, height=500)
 
