@@ -1,64 +1,11 @@
 # _*_ coding: utf-8 _*_
-import numpy as np
-import skimage.transform
+
+import re
+import pytesseract
+from inspect import getmembers, isfunction
 from pdf2image import convert_from_path
+from editing_funcs import Editing
 from scanning import *
-
-
-def teudat_words():
-    return ["תקודת", "תעורת", "תענדת", "העודת", "תפודת", "תעורה", "תקורת"]
-
-
-def gerushin_words():
-    return ["נרושיך", "נרוטין", "גרושיך", "נרושין", "גרוטין", "גדושין"]
-
-
-def hamosad_words():
-    return ["המזסד"]
-
-
-def lebituah_words():
-    return ["לביטות"]
-
-
-def medinat_words():
-    return ["מדיגת", "מדונת", "מרינת"]
-
-
-def nisuin_words():
-    return ["גישואין", "נשואין", "נשואיץ", "נשואיך", "נסואיך", "בשואין"]
-
-
-def oved_words():
-    return ["עובר"]
-
-
-def tlush_words():
-    return ["חלוש", "תלוס"]
-
-
-def sachar_words():
-    return ["טכר"]
-
-
-def nikuim_words():
-    return ["נוכויים", "ניבויים", "גיכויים"]
-
-
-def ptira_words():
-    return ["פטירת"]
-
-
-def israel_words():
-    return ["יטראל"]
-
-
-def cartis_words():
-    return ["כרטים", "ברטים", "ברטיס"]
-
-
-def student_words():
-    return ["סטורנט"]
 
 
 def ocr(file_name):
@@ -91,7 +38,8 @@ def image_ocr(file_name):
 
 
 def image_extracter(img):
-    for func in FUNCS:
+    funcs = [f[1] for f in getmembers(Editing, isfunction)]
+    for func in funcs:
         txt = pytesseract.image_to_string(func(img), lang='heb')
         cleaned_txt = re.sub(r"\s\s+", "\n", txt).strip()
         yield cleaned_txt

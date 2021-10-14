@@ -1,5 +1,5 @@
 from ocr import *
-
+from editing_funcs import Editing
 
 def text_outputs(image_name):
     scanned_image = preprocess_image(image_name)
