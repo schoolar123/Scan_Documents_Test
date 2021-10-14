@@ -8,9 +8,9 @@ import os
 
 
 class GUI:
-    DOCUMENT_TYPES = ("Divorce", "Bank OSH", "Credit Card", "Passed Away",
+    DOCUMENT_TYPES = ["Divorce", "Bank OSH", "Credit Card", "Passed Away",
                       "Marriage", "Car Reges", "Rent Agree", "BL Not Work",
-                      "Study Confirm", "Bank Balance", "ID Card", "Student Card", "Paycheck")
+                      "Study Confirm", "Bank Balance", "ID Card", "Student Card", "Paycheck"]
     DOCUMENT_FUNCS = [is_divorce, is_bank_OSH, is_credit_card, is_passed_away,
                       is_marriage, is_car_reges, is_rent_agree, is_BL_not_work,
                       is_study_confirm, is_bank_balance, is_id_card, is_student_card, is_paycheck]
@@ -27,6 +27,10 @@ class GUI:
         self.gui.mainloop()
 
     def init_main_frame(self):
+        """
+        This function initializes the main frame of the GUI.
+        :return:
+        """
         main_frame = tk.Frame(self.gui, width=400, height=60, relief='raised', background="blue")
         main_frame.pack()
         label1 = tk.Label(main_frame, text="File Kind", width=15, bg="white")
@@ -37,6 +41,10 @@ class GUI:
         button_explore.pack(pady=10)
 
     def init_labels(self):
+        """
+        This function initializes the labels of the GUI (the buttons, the names of files' kind and the result).
+        :return:
+        """
         for i, doc_name in enumerate(GUI.DOCUMENT_TYPES):
             main_frame = tk.Frame(self.gui, width=400, height=60, relief='raised', bg="white")
             main_frame.pack()
@@ -50,6 +58,17 @@ class GUI:
             button_explore.pack(pady=10)
 
     def browse_files(self, index):
+        """
+        This function:
+        1. Lets the user choose a file (image or pdf) from his computer.
+        2. Extracts the text from the file (as a generator).
+        3. Analyzes the text and stores True (in the result variable) if the image is really what was asked for
+           or False otherwise.
+        4. Alerts the user whether the result is True or False.
+        5. Stores the result in label of the file that was asked for in the GUI.
+        :param index: The index of the file kind according to the order of the list DOCUMENT_TYPES and DOCUMENT_FUNCS.
+        :return:
+        """
         file_name = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File")
         file_text = ocr(file_name)
         result = str(GUI.DOCUMENT_FUNCS[index](file_text))

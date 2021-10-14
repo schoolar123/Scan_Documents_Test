@@ -87,15 +87,20 @@ def old_find_contour(edged, image):
 
 
 def arc_length(contour):
-    '''
+    """
     Calculating the length of a closed contour
     :param contour:
     :return:
-    '''
+    """
     return cv.arcLength(contour, True)
 
 
 def contour_arc(contour):
+    """
+    Calculating the area of a closed contour
+    :param contour:
+    :return:
+    """
     contour = list(contour.reshape(-1, 2))
     min_x = min(contour, key=lambda x: x[0])[0]
     max_x = max(contour, key=lambda x: x[0])[0]
@@ -105,11 +110,12 @@ def contour_arc(contour):
     max_y = max(contour, key=lambda x: x[1])[1]
     diff_y = max_y - min_y
 
-    return diff_y * diff_x + 100 * diff_y
+    return diff_y * diff_x
 
 
 def find_contour(edged, image, image_name):
     """
+    This function finds the contour (the frame) of an object (a document).
     :param edged: The edged image
     :param image:
     :return:
@@ -195,6 +201,11 @@ def thresholding(image):
 
 
 def preprocess_image(image_name):
+    """
+    This function scans an image.
+    :param image_name:
+    :return: the scanned document
+    """
     edged_image, resized_image, org_image, ratio = find_edges(image_name)
     screen_contour = find_contour(edged_image, resized_image, image_name)
     warped = perspective_transform(org_image, screen_contour, ratio)
@@ -204,6 +215,11 @@ def preprocess_image(image_name):
 
 
 def dilation(img):
+    """
+    This function dilates the image (reduces the width of the text in the image).
+    :param img:
+    :return:
+    """
     kernel_size = 3
     kernel2 = np.ones((kernel_size, kernel_size), np.uint8)
     kernel2[0, 0] = 0
@@ -223,6 +239,11 @@ def dilation(img):
 
 
 def erosion(img):
+    """
+    This function erodes the image (increases the width of the text in the image).
+    :param img:
+    :return:
+    """
     kernel_size = 3
     kernel2 = np.ones((kernel_size, kernel_size), np.uint8)
     kernel2[0, 0] = 0

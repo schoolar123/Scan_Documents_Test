@@ -1,6 +1,7 @@
 from ocr import *
 import skimage.transform
 
+
 def text_outputs(image_name):
     scanned_image = preprocess_image(image_name)
 
@@ -100,3 +101,9 @@ def test_txts(*images):
         text = pytesseract.image_to_string(image, lang='heb')
         with open(f"test_file{i + 1}.txt", "w") as f:
             f.write(text)
+
+if __name__ == '__main__':
+    g = ocr("input_images/itrot.png")
+    for page in g:
+        for out in page:
+            print(out)
