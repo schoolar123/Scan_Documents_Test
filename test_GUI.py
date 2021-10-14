@@ -14,6 +14,39 @@ class GUI:
     DOCUMENT_FUNCS = [is_divorce, is_bank_OSH, is_credit_card, is_passed_away,
                       is_marriage, is_car_reges, is_rent_agree, is_BL_not_work,
                       is_study_confirm, is_bank_balance, is_id_card, is_student_card, is_paycheck]
+    DOCUMENT_DICT = {"candidate_id": is_id_card, "father_id": is_id_card, "mother_id": is_id_card,
+                     "candidate_current_account": is_bank_OSH, "father_current_account": is_bank_OSH,
+                     "mother_current_account": is_bank_OSH, "partner_current_account": is_bank_OSH,
+                     "candidate_details_of_credit_charges": is_credit_card,
+                     "father_details_of_credit_charges": is_credit_card,
+                     "mother_details_of_credit_charges": is_credit_card,
+                     "partner_details_of_credit_charges": is_credit_card,
+                     "candidate_balance_concentration": is_bank_balance,
+                     "father_balance_concentration": is_bank_balance,
+                     "mother_balance_concentration": is_bank_balance, "partner_balance_concentration": is_bank_balance,
+                     "candidate_vehicle_licence": is_car_reges, "father_vehicle_licence": is_car_reges,
+                     "mother_vehicle_licence": is_car_reges, "father_rental_agreement": is_rent_agree,
+                     "partner_vehicle_licence": is_car_reges, "candidate_rental_agreement": is_rent_agree,
+                     "mother_rental_agreement": is_rent_agree, "partner_rental_agreement": is_rent_agree,
+                     "marriage_certificate": is_marriage, "divorce_certificate": is_divorce,
+                     "candidate_pay_stubs": is_paycheck, "father_pay_stubs": is_paycheck,
+                     "mother_pay_stubs": is_paycheck, "partner_pay_stubs": is_paycheck,
+                     "student_certificate": is_student_card, "partner_death_certificate": is_passed_away,
+                     "father_death_certificate": is_passed_away, "mother_death_certificate": is_passed_away,
+                     "candidate_no_work": is_BL_not_work, "partner_no_work": is_BL_not_work,
+                     "father_no_work": is_BL_not_work, "mother_no_work": is_BL_not_work,
+                     "father_cpa_approval_on_income": not_exists, "mother_cpa_approval_on_income": not_exists,
+                     "partner_cpa_approval_on_income": not_exists, "exception_expenses": not_exists,
+                     "approve_allowance_amount": not_exists, "results_sheet": not_exists, "cv": not_exists,
+                     "warrior_certificate": not_exists, "discharge_certificate": not_exists,
+                     "monthly_budget_from_kibbutz": not_exists, "providing_assistance_from_kibbutz": not_exists,
+                     "candidate_mortgage": not_exists, "father_mortgage": not_exists,
+                     "mother_mortgage": not_exists, "partner_mortgage": not_exists,
+                     "tuition": not_exists, "candidate_mole_report": not_exists, "partner_mole_report": not_exists,
+                     "father_mole_report": not_exists, "mother_mole_report": not_exists,
+                     }
+    # txt = ocr(file_name)
+    # result = DOCUMENT_DICT[document_type](txt)
     NUM_OF_DOCS = len(DOCUMENT_TYPES)
     HEIGHT = (NUM_OF_DOCS + 1) * 45 + 15
 

@@ -1,5 +1,10 @@
 # _*_ coding: utf-8 _*_
 
+
+def not_exists(text):
+    return False
+
+
 def is_divorce(text):
     for page in text:
         for output in page:
