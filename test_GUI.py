@@ -103,10 +103,11 @@ class GUI:
         :return:
         """
         file_name = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File")
-        file_text = ocr(file_name)
-        result = str(GUI.DOCUMENT_FUNCS[index](file_text))
-        tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {result}!")
-        self.labels[index].config(text=result)
+        if file_name:
+            file_text = ocr(file_name)
+            result = str(GUI.DOCUMENT_FUNCS[index](file_text))
+            tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {result}!")
+            self.labels[index].config(text=result)
 
 
 if __name__ == '__main__':

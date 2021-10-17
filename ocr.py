@@ -50,6 +50,6 @@ def image_extracter(img):
     """
     funcs = [f[1] for f in getmembers(Editing, isfunction)]
     for func in funcs:
-        txt = pytesseract.image_to_string(func(img), lang='heb')
+        txt = pytesseract.image_to_string(func(img), lang='heb+eng')
         cleaned_txt = re.sub(r"\s\s+", "\n", txt).strip()
         yield cleaned_txt

@@ -109,10 +109,11 @@ def is_study_confirm(text):
 
 
 def is_bank_balance(text):
-    key = "ריכוז יתרות"
+    key1 = "ריכוז יתרות"
+    key2 = "ריכוז היתרות"
     for page in text:
         for output in page:
-            if key in output:
+            if key1 in output or key2 in output:
                 return True
     return False
 

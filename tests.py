@@ -1,5 +1,7 @@
 from ocr import *
 import skimage.transform
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def text_outputs(image_name):
@@ -102,8 +104,63 @@ def test_txts(*images):
         with open(f"test_file{i + 1}.txt", "w") as f:
             f.write(text)
 
-if __name__ == '__main__':
-    g = ocr("input_images/itrot.png")
-    for page in g:
-        for out in page:
+
+def print_output(file_generator):
+    for page in file_generator:
+        for i, out in enumerate(page):
+            print(f"function {i}:")
             print(out)
+            print("************************************")
+
+
+def analyze_bank_balance(text, row):
+    scores = []
+    key1 = "ריכוז יתרות"
+    key2 = "ריכוז היתרות"
+    max_len = 0
+    index_of_winner = 0
+    for page in text:
+        for k, output in enumerate(page):
+            score = 0
+            if key1 in output or key2 in output:
+                score += 15
+            for i in range(0, len(row), 2):
+                if not pd.isnull(row[i]) and row[i] in output:
+                    score += int(row[i + 1])
+            if len(output) > max_len:
+                max_len = len(output)
+                index_of_winner = k
+            scores.append(score)
+    scores[index_of_winner] += 10
+    return scores
+
+
+def plot_results(results, file_name):
+    labels = [str(num) for num in range(len(results))]
+    x = np.arange(len(labels))  # the label locations
+    width = 0.5  # the width of the bars
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x, results, width)
+    ax.set_ylabel("Scores")
+    ax.set_xlabel("Functions")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.bar_label(rects1, padding=3)
+    plt.title(f"Results of {file_name}")
+    plt.show()
+
+
+def analyze_docs():
+    ANALYZE_DICT = {"input_images/itrot.png": analyze_bank_balance}
+    NUM_OF_DOCS = len(ANALYZE_DICT)
+    df = pd.read_excel(io="documents_data.xlsx")
+    for row_num in range(NUM_OF_DOCS):
+        row = df.iloc[row_num]
+        file_name = row[0]
+        txt_gen = ocr(file_name)
+        results = ANALYZE_DICT[file_name](txt_gen, row[1:])
+        plot_results(results, file_name)
+
+
+if __name__ == '__main__':
+    analyze_docs()
