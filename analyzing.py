@@ -1,168 +1,128 @@
 # _*_ coding: utf-8 _*_
 
 
+def is_doc_recon(text, doc_kind):
+    for page in text:
+        for output in page:
+            if doc_kind(output):
+                return True
+    return False
+
+
 def not_exists(text):
     return False
 
 
 def is_divorce(text):
-    for page in text:
-        for output in page:
-            if "תעודת גרושין" in output:
-                return True
-            new_output = output
-            for word1 in teudat_words():
-                new_output = new_output.replace(word1, "תעודת")
-            for word2 in gerushin_words():
-                new_output = new_output.replace(word2, "גרושין")
-            if "תעודת גרושין" in new_output:
-                return True
-    return False
+    key = "תעודת גרושין"
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in teudat_words():
+        new_output = new_output.replace(word1, "תעודת")
+    for word2 in gerushin_words():
+        new_output = new_output.replace(word2, "גרושין")
+    return key in new_output
 
 
 def is_bank_OSH(text):
-    for page in text:
-        for output in page:
-            if 'יתרה בחשבון' in output:
-                return True
-    return False
+    key = "יתרה בחשבון"
+    return key in text[0]
 
 
 def is_credit_card(text):
-    for page in text:
-        for output in page:
-            if "מסטרקארד" in output:
-                return True
-    return False
+    key = "מסטרקארד"
+    return key in text[0]
 
 
 def is_passed_away(text):
-    for page in text:
-        for output in page:
-            if "תעודת פטירה" in output:
-                return True
-            new_output = output
-            for word1 in teudat_words():
-                new_output = new_output.replace(word1, "תעודת")
-            for word2 in ptira_words():
-                new_output = new_output.replace(word2, "פטירה")
-            if "תעודת פטירה" in new_output:
-                return True
-    return False
+    key = "תעודת פטירה"
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in teudat_words():
+        new_output = new_output.replace(word1, "תעודת")
+    for word2 in ptira_words():
+        new_output = new_output.replace(word2, "פטירה")
+    return key in new_output
 
 
 def is_marriage(text):
     key = "תעודת נישואין"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-            new_output = output
-            for word1 in teudat_words():
-                new_output = new_output.replace(word1, "תעודת")
-            for word2 in nisuin_words():
-                new_output = new_output.replace(word2, "נישואין")
-            if key in new_output:
-                return True
-    return False
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in teudat_words():
+        new_output = new_output.replace(word1, "תעודת")
+    for word2 in nisuin_words():
+        new_output = new_output.replace(word2, "נישואין")
+    return key in new_output
 
 
 def is_car_reges(text):
     key = "רישיון רכב"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-    return False
+    return key in text[0]
 
 
 def is_rent_agree(text):
     key = "חוזה שכירות"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-    return False
+    return key in text[0]
 
 
 def is_BL_not_work(text):
     key = "מעמד לא עובד"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-            new_output = output
-            for word1 in oved_words():
-                new_output = new_output.replace(word1, "עובד")
-            if key in new_output:
-                return True
-    return False
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in oved_words():
+        new_output = new_output.replace(word1, "עובד")
+    return key in new_output
 
 
 def is_study_confirm(text):
     key = "אישור לימודים"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-    return False
+    return key in text[0]
 
 
 def is_bank_balance(text):
     key1 = "ריכוז יתרות"
     key2 = "ריכוז היתרות"
-    for page in text:
-        for output in page:
-            if key1 in output or key2 in output:
-                return True
-    return False
+    return key1 in text[0] or key2 in text[0]
 
 
 def is_id_card(text):
     key = "תעודת זהות"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-            new_output = output
-            for word1 in teudat_words():
-                new_output = new_output.replace(word1, "תעודת")
-            if key in new_output:
-                return True
-    return False
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in teudat_words():
+        new_output = new_output.replace(word1, "תעודת")
+    return key in new_output
 
 
 def is_student_card(text):
     key1 = "כרטיס סטודנט"
     key2 = "תעודת סטודנט"
-    for page in text:
-        for output in page:
-            if key1 in output or key2 in output:
-                return True
-            new_output = output
-            for word1 in teudat_words():
-                new_output = new_output.replace(word1, "תעודת")
-            for word2 in student_words():
-                new_output = new_output.replace(word2, "סטודנט")
-            for word3 in cartis_words():
-                new_output = new_output.replace(word3, "כרטיס")
-            if key1 in new_output or key2 in new_output:
-                return True
-    return False
+    if key1 in text[0] or key2 in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in teudat_words():
+        new_output = new_output.replace(word1, "תעודת")
+    for word2 in student_words():
+        new_output = new_output.replace(word2, "סטודנט")
+    for word3 in cartis_words():
+        new_output = new_output.replace(word3, "כרטיס")
+    return key1 in new_output or key2 in new_output
 
 
 def is_paycheck(text):
     key = "ניכויים"
-    for page in text:
-        for output in page:
-            if key in output:
-                return True
-            new_output = output
-            for word1 in nikuim_words():
-                new_output = new_output.replace(word1, "ניכויים")
-            if key in new_output:
-                return True
-    return False
+    if key in text[0]:
+        return True
+    new_output = text[0]
+    for word1 in nikuim_words():
+        new_output = new_output.replace(word1, "ניכויים")
+    return key in new_output
 
 
 def teudat_words():
@@ -219,3 +179,37 @@ def cartis_words():
 
 def student_words():
     return ["סטורנט"]
+
+
+DOCUMENT_DICT = {"candidate_id": is_id_card, "father_id": is_id_card, "mother_id": is_id_card,
+                 "candidate_current_account": is_bank_OSH, "father_current_account": is_bank_OSH,
+                 "mother_current_account": is_bank_OSH, "partner_current_account": is_bank_OSH,
+                 "candidate_details_of_credit_charges": is_credit_card,
+                 "father_details_of_credit_charges": is_credit_card,
+                 "mother_details_of_credit_charges": is_credit_card,
+                 "partner_details_of_credit_charges": is_credit_card,
+                 "candidate_balance_concentration": is_bank_balance,
+                 "father_balance_concentration": is_bank_balance,
+                 "mother_balance_concentration": is_bank_balance, "partner_balance_concentration": is_bank_balance,
+                 "candidate_vehicle_licence": is_car_reges, "father_vehicle_licence": is_car_reges,
+                 "mother_vehicle_licence": is_car_reges, "father_rental_agreement": is_rent_agree,
+                 "partner_vehicle_licence": is_car_reges, "candidate_rental_agreement": is_rent_agree,
+                 "mother_rental_agreement": is_rent_agree, "partner_rental_agreement": is_rent_agree,
+                 "marriage_certificate": is_marriage, "divorce_certificate": is_divorce,
+                 "candidate_pay_stubs": is_paycheck, "father_pay_stubs": is_paycheck,
+                 "mother_pay_stubs": is_paycheck, "partner_pay_stubs": is_paycheck,
+                 "student_certificate": is_student_card, "partner_death_certificate": is_passed_away,
+                 "father_death_certificate": is_passed_away, "mother_death_certificate": is_passed_away,
+                 "candidate_no_work": is_BL_not_work, "partner_no_work": is_BL_not_work,
+                 "father_no_work": is_BL_not_work, "mother_no_work": is_BL_not_work,
+                 "candidate_study_confirmation": is_study_confirm,
+                 "father_cpa_approval_on_income": not_exists, "mother_cpa_approval_on_income": not_exists,
+                 "partner_cpa_approval_on_income": not_exists, "exception_expenses": not_exists,
+                 "approve_allowance_amount": not_exists, "results_sheet": not_exists, "cv": not_exists,
+                 "warrior_certificate": not_exists, "discharge_certificate": not_exists,
+                 "monthly_budget_from_kibbutz": not_exists, "providing_assistance_from_kibbutz": not_exists,
+                 "candidate_mortgage": not_exists, "father_mortgage": not_exists,
+                 "mother_mortgage": not_exists, "partner_mortgage": not_exists,
+                 "tuition": not_exists, "candidate_mole_report": not_exists, "partner_mole_report": not_exists,
+                 "father_mole_report": not_exists, "mother_mole_report": not_exists,
+                 }

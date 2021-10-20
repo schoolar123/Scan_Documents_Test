@@ -2,6 +2,7 @@ from ocr import *
 import skimage.transform
 import pandas as pd
 import matplotlib.pyplot as plt
+from analyzing import DOCUMENT_DICT
 
 
 def text_outputs(image_name):
@@ -106,6 +107,11 @@ def test_txts(*images):
 
 
 def print_output(file_generator):
+    """
+    This function prints the output of the editing funcs.
+    :param file_generator: The generator that generates the different outputs.
+    :return:
+    """
     for page in file_generator:
         for i, out in enumerate(page):
             print(f"function {i}:")
@@ -113,52 +119,86 @@ def print_output(file_generator):
             print("************************************")
 
 
-def analyze_bank_balance(text, row):
-    scores = []
-    key1 = "ריכוז יתרות"
-    key2 = "ריכוז היתרות"
-    max_len = 0
-    index_of_winner = 0
+def analyze_doc_scores(text, row):
+    """
+    This function analyzes all the different editing funcs and gives them a score based of the parameters from the
+    excel file.
+    :param text: The generator that generates the different outputs.
+    :param row: The specific row from the excel file that contains the score parameters of a document file.
+    :return: The scores of the different outputs (1 for only heb results and 1 for heb+eng results)
+    """
+    num_of_funcs = len(getmembers(Editing, isfunction))
+    scores_1, scores_2 = np.zeros(num_of_funcs, np.int), np.zeros(num_of_funcs, np.int)
+    lengths_1, lengths_2 = np.zeros(num_of_funcs, np.int), np.zeros(num_of_funcs, np.int)
+    doc_kind = row[0]
     for page in text:
-        for k, output in enumerate(page):
-            score = 0
-            if key1 in output or key2 in output:
-                score += 15
-            for i in range(0, len(row), 2):
-                if not pd.isnull(row[i]) and row[i] in output:
-                    score += int(row[i + 1])
-            if len(output) > max_len:
-                max_len = len(output)
-                index_of_winner = k
-            scores.append(score)
-    scores[index_of_winner] += 10
-    return scores
+        for i, output in enumerate(page):
+            scores_1[i] += analyze_helper(doc_kind, output[0], row)
+            scores_2[i] += analyze_helper(doc_kind, output[1], row)
+            lengths_1[i] += len(output[0])
+            lengths_2[i] += len(output[1])
+    scores_1[np.argmax(lengths_1)] += 10
+    scores_2[np.argmax(lengths_2)] += 10
+    # scores_1 is the array for only heb results and scores_2 is the array for heb+eng results
+    return scores_1, scores_2
+
+
+def analyze_helper(doc_kind, txt, row):
+    """
+    This function is a helper for the analyze_doc_scores function, which sums the score of a specific output.
+    :param doc_kind: The kind of the document.
+    :param txt: The text of the specific output.
+    :param row: The row in the excel file that contains the score parameters for this document.
+    :return: The score of a specific output.
+    """
+    score = 0
+    if DOCUMENT_DICT[doc_kind]([txt]):
+        score += 15
+    for i in range(1, len(row), 2):
+        if not pd.isnull(row[i]) and row[i] in txt:
+            score += int(row[i + 1])
+    return score
 
 
 def plot_results(results, file_name):
-    labels = [str(num) for num in range(len(results))]
+    """
+    This function plot the results of all the scores of the different outputs.
+    :param results: a pair of arrays of the results, the first is the heb results and the second is the heb+eng results.
+    :param file_name: The name of the specific file (which the results are of this file).
+    :return:
+    """
+    labels = [str(num) for num in range(len(results[0]))]
     x = np.arange(len(labels))  # the label locations
-    width = 0.5  # the width of the bars
+    width = 0.25  # the width of the bars
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x, results, width)
+    rects1 = ax.bar(x - width / 2, results[0], width, label="heb")
+    rects2 = ax.bar(x + width / 2, results[1], width, label="heb+eng")
     ax.set_ylabel("Scores")
     ax.set_xlabel("Functions")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.bar_label(rects1, padding=3)
+    ax.legend()
+    ax.bar_label(rects1, padding=2)
+    ax.bar_label(rects2, padding=2)
     plt.title(f"Results of {file_name}")
+    fig.tight_layout()
     plt.show()
 
 
 def analyze_docs():
-    ANALYZE_DICT = {"input_images/itrot.png": analyze_bank_balance}
-    NUM_OF_DOCS = len(ANALYZE_DICT)
+    """
+    This function go all over the docs in the excel file, analyzes the scores of the different outputs and
+    plot the results with a bar plot.
+    No need to change this function (only add new docs in the excel file).
+    :return:
+    """
     df = pd.read_excel(io="documents_data.xlsx")
-    for row_num in range(NUM_OF_DOCS):
+    num_of_docs = len(df)
+    for row_num in range(num_of_docs):
         row = df.iloc[row_num]
         file_name = row[0]
         txt_gen = ocr(file_name)
-        results = ANALYZE_DICT[file_name](txt_gen, row[1:])
+        results = analyze_doc_scores(txt_gen, row[1:])
         plot_results(results, file_name)
 
 

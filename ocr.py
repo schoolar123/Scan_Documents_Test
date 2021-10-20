@@ -28,7 +28,7 @@ def pdf_ocr(file_name):
     """
     content = convert_from_path(file_name)
     for page in content:
-        yield image_extracter(np.array(page))
+        yield image_extractor(np.array(page))
 
 
 def image_ocr(file_name):
@@ -39,10 +39,10 @@ def image_ocr(file_name):
     :return: a generator for the image (each iteration it returns text).
     """
     img = cv.imread(file_name)
-    yield image_extracter(img)
+    yield image_extractor(img)
 
 
-def image_extracter(img):
+def image_extractor(img):
     """
     This function go all over the editing funcs (in a generator), extract the text from the image and cleans it a bit.
     :param img:
@@ -50,6 +50,8 @@ def image_extracter(img):
     """
     funcs = [f[1] for f in getmembers(Editing, isfunction)]
     for func in funcs:
-        txt = pytesseract.image_to_string(func(img), lang='heb+eng')
-        cleaned_txt = re.sub(r"\s\s+", "\n", txt).strip()
-        yield cleaned_txt
+        heb_txt = pytesseract.image_to_string(func(img), lang='heb')
+        heb_eng_txt = pytesseract.image_to_string(func(img), lang='heb+eng')
+        cleaned_heb_txt = re.sub(r"\s\s+", "\n", heb_txt).strip()
+        cleaned_heb_eng_txt = re.sub(r"\s\s+", "\n", heb_eng_txt).strip()
+        yield cleaned_heb_txt, cleaned_heb_eng_txt
