@@ -76,7 +76,7 @@ class GUI:
             file_text = ocr(file_name)
             # This variable (document_type) should be a parameter in the function from the Front End
             document_type = GUI.DOCUMENT_TYPES[index]
-            result = is_doc_recon(file_text, DOCUMENT_DICT[document_type])
+            result = is_doc_recognized(file_text, DOCUMENT_DICT[document_type])
             tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {result}!")
             self.labels[index].config(text=result)
 

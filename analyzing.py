@@ -1,7 +1,7 @@
 # _*_ coding: utf-8 _*_
 
 
-def is_doc_recon(text, doc_kind):
+def is_doc_recognized(text, doc_kind):
     for page in text:
         for output in page:
             if doc_kind(output):
