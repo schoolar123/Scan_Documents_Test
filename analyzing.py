@@ -202,7 +202,7 @@ DOCUMENT_DICT = {"candidate_id": is_id_card, "father_id": is_id_card, "mother_id
                  "father_death_certificate": is_passed_away, "mother_death_certificate": is_passed_away,
                  "candidate_no_work": is_BL_not_work, "partner_no_work": is_BL_not_work,
                  "father_no_work": is_BL_not_work, "mother_no_work": is_BL_not_work,
-                 "candidate_study_confirmation": is_study_confirm,
+                 "study_confirmation": is_study_confirm,
                  "father_cpa_approval_on_income": not_exists, "mother_cpa_approval_on_income": not_exists,
                  "partner_cpa_approval_on_income": not_exists, "exception_expenses": not_exists,
                  "approve_allowance_amount": not_exists, "results_sheet": not_exists, "cv": not_exists,
