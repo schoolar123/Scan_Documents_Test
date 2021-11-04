@@ -9,13 +9,9 @@ import os
 
 class GUI:
     DOCUMENT_TYPES = ["divorce_certificate", "candidate_current_account", "candidate_details_of_credit_charges",
-                      "father_death_certificate",
-                      "marriage_certificate", "candidate_vehicle_licence", "candidate_rental_agreement",
-                      "candidate_no_work",
-                      "candidate_study_confirmation", "candidate_balance_concentration", "candidate_id",
-                      "student_certificate", "candidate_pay_stubs"]
-    # txt = ocr(file_name)
-    # result = DOCUMENT_DICT[document_type](txt)
+                      "father_death_certificate", "marriage_certificate", "candidate_vehicle_licence",
+                      "candidate_rental_agreement","candidate_no_work", "study_confirmation",
+                      "candidate_balance_concentration", "candidate_id", "student_certificate", "candidate_pay_stubs"]
     NUM_OF_DOCS = len(DOCUMENT_TYPES)
     HEIGHT = (NUM_OF_DOCS + 1) * 45 + 15
 
@@ -71,14 +67,14 @@ class GUI:
         :param index: The index of the file kind according to the order of the list DOCUMENT_TYPES.
         :return:
         """
-        file_name = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File")
+        file_name = filedialog.askopenfilename(initialdir=os.getcwd(), title=f"Select a {GUI.DOCUMENT_TYPES[index]} File")
         if file_name:
             file_text = ocr(file_name)
             # This variable (document_type) should be a parameter in the function from the Front End
             document_type = GUI.DOCUMENT_TYPES[index]
-            result = is_doc_recognized(file_text, DOCUMENT_DICT[document_type])
-            tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {result}!")
-            self.labels[index].config(text=result)
+            result = bool(is_doc_recognized(file_text, DOCUMENT_DICT[document_type]))
+            tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {str(result)}!")
+            self.labels[index].config(text=str(result))
 
 
 if __name__ == '__main__':

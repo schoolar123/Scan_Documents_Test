@@ -1,110 +1,115 @@
 # _*_ coding: utf-8 _*_
 
+FULL_RECON_SCORE = 15
+HALF_RECON_SCORE = 5
+NOT_RECON_SCORE = 0
+
 
 def is_doc_recognized(text, doc_kind):
     for page in text:
         for output in page:
-            if doc_kind(output):
-                return True
-    return False
+            result = doc_kind(output)
+            if result != 0:
+                return result
+    return NOT_RECON_SCORE
 
 
 def not_exists(text):
-    return False
+    return NOT_RECON_SCORE
 
 
 def is_divorce(text):
     key = "תעודת גרושין"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in teudat_words():
         new_output = new_output.replace(word1, "תעודת")
     for word2 in gerushin_words():
         new_output = new_output.replace(word2, "גרושין")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_bank_OSH(text):
     key = "יתרה בחשבון"
-    return key in text[0]
+    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
 
 
 def is_credit_card(text):
     key = "מסטרקארד"
-    return key in text[0]
+    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
 
 
 def is_passed_away(text):
     key = "תעודת פטירה"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in teudat_words():
         new_output = new_output.replace(word1, "תעודת")
     for word2 in ptira_words():
         new_output = new_output.replace(word2, "פטירה")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_marriage(text):
     key = "תעודת נישואין"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in teudat_words():
         new_output = new_output.replace(word1, "תעודת")
     for word2 in nisuin_words():
         new_output = new_output.replace(word2, "נישואין")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_car_reges(text):
     key = "רישיון רכב"
-    return key in text[0]
+    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
 
 
 def is_rent_agree(text):
     key = "חוזה שכירות"
-    return key in text[0]
+    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
 
 
 def is_BL_not_work(text):
     key = "מעמד לא עובד"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in oved_words():
         new_output = new_output.replace(word1, "עובד")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_study_confirm(text):
     key = "אישור לימודים"
-    return key in text[0]
+    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
 
 
 def is_bank_balance(text):
     key1 = "ריכוז יתרות"
     key2 = "ריכוז היתרות"
-    return key1 in text[0] or key2 in text[0]
+    return FULL_RECON_SCORE if key1 in text[0] or key2 in text[0] else NOT_RECON_SCORE
 
 
 def is_id_card(text):
     key = "תעודת זהות"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in teudat_words():
         new_output = new_output.replace(word1, "תעודת")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_student_card(text):
     key1 = "כרטיס סטודנט"
     key2 = "תעודת סטודנט"
     if key1 in text[0] or key2 in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in teudat_words():
         new_output = new_output.replace(word1, "תעודת")
@@ -112,17 +117,17 @@ def is_student_card(text):
         new_output = new_output.replace(word2, "סטודנט")
     for word3 in cartis_words():
         new_output = new_output.replace(word3, "כרטיס")
-    return key1 in new_output or key2 in new_output
+    return HALF_RECON_SCORE if key1 in new_output or key2 in new_output else NOT_RECON_SCORE
 
 
 def is_paycheck(text):
     key = "ניכויים"
     if key in text[0]:
-        return True
+        return FULL_RECON_SCORE
     new_output = text[0]
     for word1 in nikuim_words():
         new_output = new_output.replace(word1, "ניכויים")
-    return key in new_output
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def teudat_words():

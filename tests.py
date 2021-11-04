@@ -128,8 +128,8 @@ def analyze_doc_scores(text, row):
     :return: The scores of the different outputs (1 for only heb results and 1 for heb+eng results)
     """
     num_of_funcs = len(getmembers(Editing, isfunction))
-    scores_1, scores_2 = np.zeros(num_of_funcs, np.int), np.zeros(num_of_funcs, np.int)
-    lengths_1, lengths_2 = np.zeros(num_of_funcs, np.int), np.zeros(num_of_funcs, np.int)
+    scores_1, scores_2 = np.zeros(num_of_funcs, int), np.zeros(num_of_funcs, int)
+    lengths_1, lengths_2 = np.zeros(num_of_funcs, int), np.zeros(num_of_funcs, int)
     doc_kind = row[0]
     for page in text:
         for i, output in enumerate(page):
@@ -151,11 +151,9 @@ def analyze_helper(doc_kind, txt, row):
     :param row: The row in the excel file that contains the score parameters for this document.
     :return: The score of a specific output.
     """
-    score = 0
-    if DOCUMENT_DICT[doc_kind]([txt]):
-        score += 15
+    score = DOCUMENT_DICT[doc_kind]([txt])
     for i in range(1, len(row), 2):
-        if not pd.isnull(row[i]) and row[i] in txt:
+        if not pd.isnull(row[i]) and str(row[i]) in txt:
             score += int(row[i + 1])
     return score
 
