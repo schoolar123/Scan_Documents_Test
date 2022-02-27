@@ -66,7 +66,12 @@ def is_marriage(text):
 
 def is_car_reges(text):
     key = "רישיון רכב"
-    return FULL_RECON_SCORE if key in text[0] else NOT_RECON_SCORE
+    if key in text[0]:
+        return FULL_RECON_SCORE
+    new_output = text[0]
+    for word in rishayon_words():
+        new_output = new_output.replace(word, "רישיון")
+    return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
 
 def is_rent_agree(text):
@@ -129,6 +134,9 @@ def is_paycheck(text):
         new_output = new_output.replace(word1, "ניכויים")
     return HALF_RECON_SCORE if key in new_output else NOT_RECON_SCORE
 
+
+def rishayon_words():
+    return ["רשיון", "רשון", "רישון"]
 
 def teudat_words():
     return ["תקודת", "תעורת", "תענדת", "העודת", "תפודת", "תעורה", "תקורת"]

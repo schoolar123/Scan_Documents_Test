@@ -115,7 +115,8 @@ def print_output(file_generator):
     for page in file_generator:
         for i, out in enumerate(page):
             print(f"function {i}:")
-            print(out)
+            print("Only Hebrew:", out[0])
+            print("With English:", out[1])
             print("************************************")
 
 
@@ -180,7 +181,8 @@ def plot_results(results, file_name):
     ax.bar_label(rects2, padding=2)
     plt.title(f"Results of {file_name}")
     fig.tight_layout()
-    plt.show()
+    plt.savefig(f"results_graph/{file_name[13:-4]}_results.png")
+    print(f"{file_name[13:-4]}_results.png saved!")
 
 
 def analyze_docs():
@@ -198,6 +200,11 @@ def analyze_docs():
         txt_gen = ocr(file_name)
         results = analyze_doc_scores(txt_gen, row[1:])
         plot_results(results, file_name)
+
+
+def output_image(image_file_name):
+    txt_gen = ocr(image_file_name)
+    print_output(txt_gen)
 
 
 if __name__ == '__main__':
