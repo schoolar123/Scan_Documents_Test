@@ -69,9 +69,9 @@ class GUI:
         """
         file_name = filedialog.askopenfilename(initialdir=os.getcwd(), title=f"Select a {GUI.DOCUMENT_TYPES[index]} File")
         if file_name:
-            file_text = ocr(file_name)
             # This variable (document_type) should be a parameter in the function from the Front End
             document_type = GUI.DOCUMENT_TYPES[index]
+            file_text = ocr(file_name, document_type)
             result = bool(is_doc_recognized(file_text, DOCUMENT_DICT[document_type]))
             tk.messagebox.showinfo(message=f"{GUI.DOCUMENT_TYPES[index]} is {str(result)}!")
             self.labels[index].config(text=str(result))
