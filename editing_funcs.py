@@ -396,3 +396,17 @@ class Editing:
         new_img = Editing.f010(img)
         new_img = erosion(new_img)
         return new_img
+
+
+    @staticmethod
+    def f025(img):
+        """
+        1. Changes the image to a gray image.
+        2. Rescaling the image to be 3x size.
+        :param img:
+        :return:
+        """
+        rescale_factor = 3
+        new_img = Editing.f000(img)
+        new_img = np.uint8(skimage.transform.rescale(new_img, (rescale_factor, rescale_factor), multichannel=False,preserve_range=True))
+        return new_img

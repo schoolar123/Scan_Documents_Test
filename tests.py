@@ -181,7 +181,7 @@ def plot_results(results, file_name):
     ax.bar_label(rects2, padding=2)
     plt.title(f"Results of {file_name}")
     fig.tight_layout()
-    plt.savefig(f"results_graph/{file_name[13:-4]}_results.png")
+    plt.savefig(f"results_new/{file_name[13:-4]}_results.png")
     print(f"{file_name[13:-4]}_results.png saved!")
 
 
@@ -195,6 +195,7 @@ def analyze_docs():
     df = pd.read_excel(io="documents_data.xlsx")
     num_of_docs = len(df)
     for row_num in range(num_of_docs):
+        print(row_num)
         row = df.iloc[row_num]
         file_name = row[0]
         txt_gen = ocr(file_name)
@@ -202,10 +203,19 @@ def analyze_docs():
         plot_results(results, file_name)
 
 
-def output_image(image_file_name):
-    txt_gen = ocr(image_file_name)
-    print_output(txt_gen)
+def analyze_doc(index):
+    df = pd.read_excel(io="documents_data.xlsx")
+    row_num = index - 2
+    row = df.iloc[row_num]
+    file_name = row[0]
+    txt_gen = ocr(file_name)
+    results = analyze_doc_scores(txt_gen, row[1:])
+    plot_results(results, file_name)
+
+# def output_image(image_file_name):
+#     txt_gen = ocr(image_file_name)
+#     print_output(txt_gen)
 
 
 if __name__ == '__main__':
-    analyze_docs()
+    analyze_doc(6)

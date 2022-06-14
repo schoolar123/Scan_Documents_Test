@@ -92,18 +92,21 @@ DOCUMENT_FUNCS_DICT = {
     "candidate_mortgage": None, "father_mortgage": None,
     "mother_mortgage": None, "partner_mortgage": None,
     "tuition": None, "candidate_mole_report": None, "partner_mole_report": None,
-    "father_mole_report": None, "mother_mole_report": None,
+    "father_mole_report": None, "mother_mole_report": None
     }
 
 
-def ocr(file_name, file_kind):
+def ocr(file_name, file_kind=None):
     """
     This function is the main OCR function which extracts text from a file (pdf or image).
     :param file_kind:
     :param file_name:
     :return: a generator for the text of the file (each iteration it returns text).
     """
-    funcs = DOCUMENT_FUNCS_DICT[file_kind]
+    if file_kind is None:
+        funcs = None
+    else:
+        funcs = DOCUMENT_FUNCS_DICT[file_kind]
     if file_name.endswith("pdf"):
         return pdf_ocr(file_name, funcs)
     return image_ocr(file_name, funcs)

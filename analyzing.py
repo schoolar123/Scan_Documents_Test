@@ -138,6 +138,7 @@ def is_paycheck(text):
 def rishayon_words():
     return ["רשיון", "רשון", "רישון"]
 
+
 def teudat_words():
     return ["תקודת", "תעורת", "תענדת", "העודת", "תפודת", "תעורה", "תקורת"]
 
