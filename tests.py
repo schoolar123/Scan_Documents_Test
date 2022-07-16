@@ -166,7 +166,7 @@ def plot_results(results, file_name):
     :param file_name: The name of the specific file (which the results are of this file).
     :return:
     """
-    labels = [str(num) for num in range(len(results[0]))]
+    labels = [int(func_num[0][1:]) for func_num in getmembers(Editing, isfunction)]
     x = np.arange(len(labels))  # the label locations
     width = 0.25  # the width of the bars
     fig, ax = plt.subplots()
